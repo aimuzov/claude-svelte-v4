@@ -1,0 +1,19 @@
+{
+  "name": "aimuzov-claude-svelte-v4",
+  "owner": {
+    "name": "Aleksey Imuzov",
+    "email": "github@aimuzov.online"
+  },
+  "metadata": {
+    "description": "Single-plugin marketplace hosting the svelte-v4 Claude Code skill."
+  },
+  "plugins": [
+    {
+      "name": "svelte-v4",
+      "description": "Skill for writing idiomatic Svelte v4 components. Prevents Svelte 5 runes/snippets leakage and covers reactivity, stores, lifecycle, directives, transitions, motion, and a11y.",
+      "source": "./",
+      "category": "development",
+      "homepage": "https://github.com/aimuzov/claude-svelte-v4"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
+  "name": "svelte-v4",
+  "description": "Claude Code skill for writing idiomatic Svelte v4 components. Guards against accidental Svelte 5 runes and snippets; covers reactivity, stores, lifecycle, directives, transitions, motion, and a11y.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Aleksey Imuzov",
+    "email": "license@r1.team"
+  },
+  "homepage": "https://github.com/aimuzov/claude-svelte-v4",
+  "repository": "https://github.com/aimuzov/claude-svelte-v4",
+  "license": "MIT",
+  "keywords": ["svelte", "svelte4", "skill", "frontend"]
+}

@@ -1,0 +1,56 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  json:
+    name: validate manifests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check plugin.json and marketplace.json parse as JSON
+        run: |
+          set -e
+          for f in .claude-plugin/plugin.json .claude-plugin/marketplace.json; do
+            echo "Validating $f"
+            python3 -c "import json, sys; json.load(open(sys.argv[1]))" "$f"
+          done
+
+      - name: Ensure plugin name matches across manifests
+        run: |
+          set -e
+          plugin_name=$(python3 -c "import json; print(json.load(open('.claude-plugin/plugin.json'))['name'])")
+          marketplace_plugin=$(python3 -c "import json; p=json.load(open('.claude-plugin/marketplace.json'))['plugins'][0]['name']; print(p)")
+          if [ "$plugin_name" != "$marketplace_plugin" ]; then
+            echo "Mismatch: plugin.json name=$plugin_name, marketplace.json plugins[0].name=$marketplace_plugin"
+            exit 1
+          fi
+          echo "OK: $plugin_name"
+
+      - name: Ensure SKILL.md has valid frontmatter
+        run: |
+          set -e
+          for skill in skills/*/SKILL.md; do
+            echo "Checking $skill"
+            python3 - "$skill" <<'PY'
+          import sys, re
+          path = sys.argv[1]
+          text = open(path).read()
+          m = re.match(r'^---\n(.*?)\n---\n', text, re.DOTALL)
+          if not m:
+              print(f'{path}: missing YAML frontmatter'); sys.exit(1)
+          front = m.group(1)
+          for key in ('name:', 'description:'):
+              if key not in front:
+                  print(f'{path}: frontmatter missing required key {key!r}'); sys.exit(1)
+          print(f'{path}: OK')
+          PY
+          done
