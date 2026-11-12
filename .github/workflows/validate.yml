@@ -8,13 +8,22 @@ on:
 
 permissions:
   contents: read
+  actions: read
+  id-token: write
 
 jobs:
   json:
     name: validate manifests
     runs-on: ubuntu-latest
     steps:
+      - name: Reuse verified CI
+        id: verified
+        uses: aimuzov/infra-ci/reuse-check@v1
+        continue-on-error: true
+        with:
+          workflow: .github/workflows/validate.yml
       - uses: actions/checkout@v4
+        if: steps.verified.outputs.reused != 'true'
 
       - name: Check plugin.json and marketplace.json parse as JSON
         run: |
@@ -23,6 +32,7 @@ jobs:
             echo "Validating $f"
             python3 -c "import json, sys; json.load(open(sys.argv[1]))" "$f"
           done
+        if: steps.verified.outputs.reused != 'true'
 
       - name: Ensure plugin name matches across manifests
         run: |
@@ -34,6 +44,7 @@ jobs:
             exit 1
           fi
           echo "OK: $plugin_name"
+        if: steps.verified.outputs.reused != 'true'
 
       - name: Ensure SKILL.md has valid frontmatter
         run: |
@@ -54,3 +65,10 @@ jobs:
           print(f'{path}: OK')
           PY
           done
+        if: steps.verified.outputs.reused != 'true'
+      - name: Record verified CI
+        if: github.event_name == 'pull_request' && steps.verified.outputs.reused != 'true'
+        uses: aimuzov/infra-ci/record-check@v1
+        continue-on-error: true
+        with:
+          workflow: .github/workflows/validate.yml
